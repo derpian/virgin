@@ -1353,132 +1353,6 @@ pidgin_webview_get_type(void)
 	return mview_type;
 }
 
-/*****************************************************************************
- * Public API functions
- *****************************************************************************/
-
-char *
-pidgin_webview_quote_js_string(const char *text)
-{
-	GString *str = g_string_new("\"");
-	const char *cur = text;
-
-	while (cur && *cur) {
-		switch (*cur) {
-			case '\\':
-				g_string_append(str, "\\\\");
-				break;
-			case '\"':
-				g_string_append(str, "\\\"");
-				break;
-			case '\r':
-				g_string_append(str, "<br/>");
-				break;
-			case '\n':
-				break;
-			default:
-				g_string_append_c(str, *cur);
-		}
-		cur++;
-	}
-
-	g_string_append_c(str, '"');
-
-	return g_string_free(str, FALSE);
-}
-
-void
-pidgin_webview_clear_text(PidginWebView *webview)
-{
-	GtkTextBuffer *buffer;
-	GtkTextIter a;
-	GtkTextIter b;
-	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (webview));
-	gtk_text_buffer_get_start_iter(buffer, &a);
-	gtk_text_buffer_get_end_iter(buffer, &b);
-	gtk_text_buffer_delete(buffer, &a, &b);
-}
-
-void
-pidgin_webview_add_text(PidginWebView *webview, const char *mes, const char *usr, const char *usra, const char *t)
-{
-	GtkTextBuffer *buffer;
-	GtkTextBuffer *b;
-	GtkTextIter iter;
-	GtkTextIter	end;
-	char *tmp; char *tmpt;
-
-if (usr == NULL) {
-
-tmp = g_strdup_printf("%s:", usra);
-tmpt = g_strdup_printf("%s ", t);
-
-buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (webview));
-gtk_text_buffer_get_end_iter(buffer, &iter);
-
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
-        tmpt, -1, "gray_fg",  NULL);
-//        tmpt, -1, "italic", "gray_fg",  NULL);
-
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
-        tmp, -1, "bold", "red_fg",  NULL);
-
-} else {
-
-tmp = g_strdup_printf("%s:", usr);
-tmpt = g_strdup_printf("%s ", t);
-
-buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (webview));
-gtk_text_buffer_get_end_iter(buffer, &iter);
-
-
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
-        tmpt, -1, "gray_fg",  NULL);
-//        tmpt, -1, "italic", "gray_fg",  NULL);
-
-//  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
-//        "Bold text:", -1, "bold", "lmarg",  NULL);
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
-        tmp, -1, "bold",  NULL);
-}
-
-gtk_text_buffer_insert(buffer, &iter, mes, -1);
-g_free(tmp); g_free(tmpt);
-
-PidginWebViewPriv *priv = PIDGIN_WEBVIEW_GET_PRIVATE(webview);
-	GtkAdjustment *adj;
-	gdouble max_val;
-adj = priv->vadj;
-max_val = gtk_adjustment_get_upper(adj) - gtk_adjustment_get_page_size(adj);
-
-gtk_adjustment_set_value(adj, max_val);
-
-b = gtk_text_view_get_buffer(GTK_TEXT_VIEW(webview));
-gtk_text_buffer_get_end_iter(b, &end);
-gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(webview), &end, 0.0, FALSE, 0.0,0.0);
-//gtk_text_view_scroll_to_iter (GTK_TEXT_VIEW(webview), &end, 0, TRUE, 0.0, 1.0);
-}
-
-void
-pidgin_webview_safe_execute_script(PidginWebView *webview, const char *script)
-{
-/*	PidginWebViewPriv *priv;
-
-	g_return_if_fail(webview != NULL);
-
-	priv = PIDGIN_WEBVIEW_GET_PRIVATE(webview);
-	g_queue_push_tail(priv->load_queue, GINT_TO_POINTER(LOAD_JS));
-	g_queue_push_tail(priv->load_queue, g_strdup(script));
-	if (!priv->is_loading && priv->loader == 0)
-		priv->loader = g_idle_add((GSourceFunc)process_load_queue, webview); */
-
-	GtkTextBuffer *buffer;
-	GtkTextIter iter;
-buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (webview));
-gtk_text_buffer_get_end_iter(buffer, &iter);
-gtk_text_buffer_insert(buffer, &iter, script, -1);
-}
-
 int stripHTMLTags(char *sToClean,size_t size)
     {
         int i=0,j=0,k=0;
@@ -1590,6 +1464,144 @@ int stripHTMLTags(char *sToClean,size_t size)
 
         return j;
     }
+
+/*****************************************************************************
+ * Public API functions
+ *****************************************************************************/
+
+char *
+pidgin_webview_quote_js_string(const char *text)
+{
+	GString *str = g_string_new("\"");
+	const char *cur = text;
+
+	while (cur && *cur) {
+		switch (*cur) {
+			case '\\':
+				g_string_append(str, "\\\\");
+				break;
+			case '\"':
+				g_string_append(str, "\\\"");
+				break;
+			case '\r':
+				g_string_append(str, "<br/>");
+				break;
+			case '\n':
+				break;
+			default:
+				g_string_append_c(str, *cur);
+		}
+		cur++;
+	}
+
+	g_string_append_c(str, '"');
+
+	return g_string_free(str, FALSE);
+}
+
+void
+pidgin_webview_clear_text(PidginWebView *webview)
+{
+	GtkTextBuffer *buffer;
+	GtkTextIter a;
+	GtkTextIter b;
+	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (webview));
+	gtk_text_buffer_get_start_iter(buffer, &a);
+	gtk_text_buffer_get_end_iter(buffer, &b);
+	gtk_text_buffer_delete(buffer, &a, &b);
+}
+
+void
+pidgin_webview_add_text(PidginWebView *webview, const char *mes, const char *usr, const char *usra, const char *t)
+{
+	GtkTextBuffer *buffer;
+	GtkTextBuffer *b;
+	GtkTextIter iter;
+	GtkTextIter	end;
+	char *tmp; char *tmpt; char *ht; char *str;
+
+if (usr == NULL) {
+
+tmp = g_strdup_printf("%s:", usra);
+tmpt = g_strdup_printf("%s ", t);
+
+buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (webview));
+gtk_text_buffer_get_end_iter(buffer, &iter);
+
+  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
+        tmpt, -1, "gray_fg",  NULL);
+//        tmpt, -1, "italic", "gray_fg",  NULL);
+
+  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
+        tmp, -1, "bold", "red_fg",  NULL);
+
+} else {
+
+tmp = g_strdup_printf("%s:", usr);
+tmpt = g_strdup_printf("%s ", t);
+
+buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (webview));
+gtk_text_buffer_get_end_iter(buffer, &iter);
+
+
+  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
+        tmpt, -1, "gray_fg",  NULL);
+//        tmpt, -1, "italic", "gray_fg",  NULL);
+
+//  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
+//        "Bold text:", -1, "bold", "lmarg",  NULL);
+  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, 
+        tmp, -1, "bold",  NULL);
+}
+
+ht = strdup(mes); stripHTMLTags(ht, strlen(ht));
+str = ht;
+  // Trim leading space
+  while(isspace((unsigned char)*str)) {str++;}
+
+  if(*str == 0)  // All spaces?
+    {
+		gtk_text_buffer_insert(buffer, &iter, ht, -1);
+	} else {
+gtk_text_buffer_insert(buffer, &iter, str, -1);
+	}
+g_free(tmp); g_free(tmpt); g_free(ht);
+//gtk_text_buffer_insert(buffer, &iter, mes, -1);
+//g_free(tmp); g_free(tmpt);
+
+PidginWebViewPriv *priv = PIDGIN_WEBVIEW_GET_PRIVATE(webview);
+	GtkAdjustment *adj;
+	gdouble max_val;
+adj = priv->vadj;
+max_val = gtk_adjustment_get_upper(adj) - gtk_adjustment_get_page_size(adj);
+
+gtk_adjustment_set_value(adj, max_val);
+
+b = gtk_text_view_get_buffer(GTK_TEXT_VIEW(webview));
+gtk_text_buffer_get_end_iter(b, &end);
+gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(webview), &end, 0.0, FALSE, 0.0,0.0);
+//gtk_text_view_scroll_to_iter (GTK_TEXT_VIEW(webview), &end, 0, TRUE, 0.0, 1.0);
+}
+
+void
+pidgin_webview_safe_execute_script(PidginWebView *webview, const char *script)
+{
+/*	PidginWebViewPriv *priv;
+
+	g_return_if_fail(webview != NULL);
+
+	priv = PIDGIN_WEBVIEW_GET_PRIVATE(webview);
+	g_queue_push_tail(priv->load_queue, GINT_TO_POINTER(LOAD_JS));
+	g_queue_push_tail(priv->load_queue, g_strdup(script));
+	if (!priv->is_loading && priv->loader == 0)
+		priv->loader = g_idle_add((GSourceFunc)process_load_queue, webview); */
+
+	GtkTextBuffer *buffer;
+	GtkTextIter iter;
+buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (webview));
+gtk_text_buffer_get_end_iter(buffer, &iter);
+gtk_text_buffer_insert(buffer, &iter, script, -1);
+}
 
 void
 pidgin_webview_load_html_string(PidginWebView *webview, const char *html)
