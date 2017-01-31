@@ -921,8 +921,10 @@ set_sensitive_if_input_buddy_cb(GtkWidget *entry, gpointer user_data)
 		data->rq_data.account));
 	text = gtk_entry_get_text(GTK_ENTRY(entry));
 
+//	gtk_dialog_set_response_sensitive(GTK_DIALOG(data->rq_data.window),
+//		GTK_RESPONSE_OK, purple_validate(protocol, text));
 	gtk_dialog_set_response_sensitive(GTK_DIALOG(data->rq_data.window),
-		GTK_RESPONSE_OK, purple_validate(protocol, text));
+		GTK_RESPONSE_OK, TRUE);
 }
 
 static void
